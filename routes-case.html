@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue-router-后台管理路由案例</title>
+    <style type="text/css">
+        li {
+            list-style: none;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .sub {
+            margin: 20px auto;
+            width: 800px;
+            height: 500px;
+            color: #fff;
+            text-align: center;
+            background-color: rgb(46, 64, 73);
+
+        }
+
+        .header {
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            font-size: 20px
+        }
+
+        .main {
+            height: 400px;
+        }
+
+        .content-left {
+            float: left;
+            width: 150px;
+        }
+
+        .content-left ul li {
+            box-sizing: border-box;
+            cursor: pointer;
+            padding: 10px 0;
+            border-bottom: 1px solid #ffff;
+            background-color: rgb(51, 106, 131);
+        }
+
+        .content-left ul li:hover {
+            background-color: rgb(196, 157, 84);
+        }
+
+        .content-right {
+            float: right;
+            width: 650px;
+            height: 400px;
+            color: #000;
+            background-color: #ffff;
+            text-align: center;
+        }
+
+        .content-right h1 {
+            font-size: 20px;
+            margin: 10px auto;
+        }
+
+        .content-right a {
+            color: rgb(96, 48, 172);
+        }
+
+        .content-right table {
+            margin-left: 20px;
+            width: 630px;
+            border-collapse: collapse;
+        }
+
+        .content-right tr {
+            height: 40px;
+        }
+
+        .content-right td,
+        .content-right th {
+            border: 1px solid #333;
+        }
+
+        thead tr {
+            background-color: #ccc;
+            font-size: 16px;
+        }
+
+        tbody tr {
+            font-size: 12px;
+        }
+
+        .footer {
+            height: 50px;
+            line-height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 路由占位符 -->
+        <router-view></router-view>
+    </div>
+    <script src="vue.global.js"></script>
+    <script src="vue-router.global.js"></script>
+    <script>
+        //抽离app根组件
+        const APP = {
+            template: `<div class="sub">
+            <!-- 头部区域 -->
+            <header class="header">后台管理系统</header>
+            <!-- 中间主体区域 -->
+            <div class="main">
+                <!-- 左侧菜单栏 -->
+                <div class="content-left">
+                    <ul>
+                        <li><router-link to="/users">用户管理</router-link></li>
+                        <li><router-link to="/rights">权限管理</router-link></li>
+                        <li><router-link to="/goods">商品管理</router-link></li>
+                        <li><router-link to="/orders">订单管理</router-link></li>
+                        <li><router-link to="/settings">系统设置</router-link></li>
+                    </ul>
+                </div>
+                <!-- 右侧内容区域 -->
+                <div class="content-right">
+                    <!-- 路由占位符 -->
+                    <router-view></router-view>
+                </div>
+            </div>
+
+            <!-- 尾部区域 -->
+            <footer class="footer">版权信息</footer>
+        </div>`
+        };
+        const User = {
+            data() {
+                return {
+                    lists: [
+                        { id: 1, uname: "zhangsan", age: 22 },
+                        { id: 2, uname: "lisi", age: 18 },
+                        { id: 3, uname: "xiaohong", age: 25 },
+                    ]
+                }
+            },
+            methods: {
+                goInfo(id) {
+                    this.$router.push("/usersInfo/" + id)
+                }
+            },
+            template: `<div>
+            <h1>用户管理区域</h1>
+            <table>
+                <thead>
+                <tr>
+                    <td>编号</td>
+                    <td>姓名</td>
+                    <td>年龄</td>
+                    <td>操作</td>
+                </tr>    
+               </thead>
+                <tbody>
+                <tr :key=item.id v-for="item in lists">
+                    <th>{{item.id}}</th>
+                    <th>{{item.uname}}</th>
+                    <th>{{item.age}}</th>
+                    <th><a href="javascript:;" @click="goInfo(item.id)">详情</a></th>
+                </tr>
+            </tbody>
+            </table>
+        </div>`
+        };
+        const UserInfo = {
+            methods: {
+                goBack() {
+                    this.$router.go(-1)
+                }
+            },
+            props: ['id'],
+            template: `<div>
+            <h5>用户详情：用户ID为{{id}}</h5>
+            <button @click="goBack">回退</button>
+        </div>`
+        }
+        const Rights = {
+            template: `<div>权限管理内容</div>`
+        };
+        const Goods = {
+            template: `<div>商品管理内容</div>`
+        };
+        const Orders = {
+            template: `<div>订单管理内容</div>`
+        };
+        const Settings = {
+            template: `<div>系统内容</div>`
+        };
+        //定义路由信息
+        const routes = [
+            {
+                path: '/', component: APP, redirect: '/users',
+                children: [
+                    { path: '/users', component: User },
+                    {
+                        path: '/usersInfo/:id', component: UserInfo,
+                        props: true
+                    },
+                    { path: '/rights', component: Rights },
+                    { path: '/goods', component: Goods },
+                    { path: '/orders', component: Orders },
+                    { path: '/settings', component: Settings }
+                ]
+            }
+
+        ];
+        //创建路由实例
+        const router = VueRouter.createRouter({
+            routes,
+            history: VueRouter.createWebHashHistory()
+        });
+        //挂载路由
+        const app = Vue.createApp({
+        });
+        app.use(router);
+        app.mount("#app")
+
+    </script>
+</body>
+
+</html>
